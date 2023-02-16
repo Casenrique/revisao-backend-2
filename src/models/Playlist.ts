@@ -1,4 +1,4 @@
-import { PlaylistDB } from "../types";
+import { PlaylistDB, PlaylistModel } from "../types";
 
 export class Playlist {
     constructor(
