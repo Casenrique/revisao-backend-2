@@ -1,10 +1,10 @@
 import { PlaylistDatabase } from "../database/PlaylistDatabase";
-import { CreatePlaylistInputDTO, GetPlaylistsInputDTO, GetPlaylistsOutputDTO } from "../dtos/userDTO";
+import { CreatePlaylistInputDTO, EditPlaylistInputDTO, GetPlaylistsInputDTO, GetPlaylistsOutputDTO } from "../dtos/userDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { Playlist } from "../models/Playlist";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
-import { PlaylistWithCreatorDB } from "../types";
+import { PlaylistDB, PlaylistWithCreatorDB } from "../types";
 
 export class PlaylistBusiness {
     constructor(
@@ -88,5 +88,56 @@ export class PlaylistBusiness {
         const playlistDB = playlist.toDBModel()
 
         await this. playlistDatabase.insert(playlistDB)
+    }
+
+    public editPlaylist = async (input: EditPlaylistInputDTO): Promise<void> => {
+        const { idToEdit, token, name } = input
+
+        if(token === undefined) {
+            throw new BadRequestError("token ausente")
+        }
+
+        const payload = this.tokenManager.getPayload(token)
+
+        if(payload === null) {
+            throw new BadRequestError("token inválido")
+        }
+
+        if(typeof name !== "string") {
+            throw new BadRequestError("'name' deve ser string")
+        }
+
+        const playlistDB: PlaylistDB | undefined = await this.playlistDatabase.searchById(idToEdit)
+
+        if(!playlistDB) {
+            throw new BadRequestError("'id' não encontrado")
+        }
+
+        // const updatedAt = new Date().toISOString()
+        const creatorId = payload.id
+        const creatorName = payload.name
+
+        if(playlistDB.creator_id !== creatorId) {
+            throw new BadRequestError("Somente o criador da playlist pode editá-la")
+        }
+
+        const playlist = new Playlist(
+            playlistDB.id,
+            playlistDB.name,
+            playlistDB.likes,
+            playlistDB.dislikes,
+            playlistDB.created_at,
+            playlistDB.updated_at,
+            creatorId,
+            creatorName
+        )
+
+        playlist.setName(name)
+        playlist.setUpdatedAt(new Date().toISOString())
+
+        const updatedPlaylistDB = playlist.toDBModel()
+
+        await this.playlistDatabase.update(idToEdit, updatedPlaylistDB)
+
     }
 }

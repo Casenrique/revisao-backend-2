@@ -18,3 +18,4 @@ const playlistController = new PlaylistController(
 
 playlistRouter.get("/", playlistController.getPlaylists)
 playlistRouter.post("/", playlistController.createPlaylists)
+playlistRouter.put("/:id", playlistController.editPlaylists)
