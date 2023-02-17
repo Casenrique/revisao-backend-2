@@ -32,6 +32,10 @@ export interface PlaylistDB {
     updated_at: string
 }
 
+export interface PlaylistWithCreatorDB extends PlaylistDB {
+    creator_name: string
+}
+
 export interface UserDB {
     id: string,
     name: string,
