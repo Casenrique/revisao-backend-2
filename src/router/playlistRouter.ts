@@ -17,3 +17,4 @@ const playlistController = new PlaylistController(
 )
 
 playlistRouter.get("/", playlistController.getPlaylists)
+playlistRouter.post("/", playlistController.createPlaylists)

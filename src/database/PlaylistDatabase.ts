@@ -1,4 +1,4 @@
-import { PlaylistWithCreatorDB } from "../types";
+import { PlaylistDB, PlaylistWithCreatorDB } from "../types";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class PlaylistDatabase extends BaseDatabase {
@@ -22,5 +22,10 @@ export class PlaylistDatabase extends BaseDatabase {
             return result 
     }
 
+    public insert = async (playlistDB: PlaylistDB): Promise<void> => {
+        await BaseDatabase
+            .connection(PlaylistDatabase.TABLE_PLAYLISTS)
+            .insert(playlistDB)
+    }
     
 }

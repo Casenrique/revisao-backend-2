@@ -1,5 +1,5 @@
 import { PlaylistDatabase } from "../database/PlaylistDatabase";
-import { GetPlaylistsInputDTO, GetPlaylistsOutputDTO } from "../dtos/userDTO";
+import { CreatePlaylistInputDTO, GetPlaylistsInputDTO, GetPlaylistsOutputDTO } from "../dtos/userDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { Playlist } from "../models/Playlist";
 import { IdGenerator } from "../services/IdGenerator";
@@ -49,5 +49,44 @@ export class PlaylistBusiness {
 
             const output: GetPlaylistsOutputDTO = playlists
         return output
+    }
+
+    public createPlaylist = async (input: CreatePlaylistInputDTO): Promise<void> => {
+        const { token, name } = input
+
+        if(token === undefined) {
+            throw new BadRequestError("token ausente")
+        }
+
+        const payload = this.tokenManager.getPayload(token)
+
+        if(payload === null) {
+            throw new BadRequestError("token inválido")
+        }
+
+        if(typeof name !== "string") {
+            throw new BadRequestError("'name' deve ser string")
+        }
+
+        const id = this.idGenerator.generate()
+        const createdAt = new Date().toISOString()
+        const updatedAt = new Date().toISOString()
+        const creatorId = payload.id
+        const creatorName = payload.name
+
+        const playlist = new Playlist(
+            id,
+            name,
+            0,
+            0,
+            createdAt,
+            updatedAt,
+            creatorId,
+            creatorName
+        )
+
+        const playlistDB = playlist.toDBModel()
+
+        await this. playlistDatabase.insert(playlistDB)
     }
 }

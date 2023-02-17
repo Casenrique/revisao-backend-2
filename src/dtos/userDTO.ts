@@ -20,13 +20,14 @@ export interface LoginOutputDTO {
 }
 
 export interface GetPlaylistsInputDTO {
-    token: string | undefined
+    token: string | undefined,
 }
 
 export type GetPlaylistsOutputDTO = PlaylistModel[]
 
 export interface CreatePlaylistInputDTO {
-    token: string | undefined
+    token: string | undefined,
+    name: unknown
 }
 
 export interface EditPlaylistInputDTO {
