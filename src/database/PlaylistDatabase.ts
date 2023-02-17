@@ -44,5 +44,12 @@ export class PlaylistDatabase extends BaseDatabase {
             .update(playlistDB)
             .where({ id: idToEdit })
     }
+
+    public delete = async (idToDelete: string): Promise<void> => {
+        await BaseDatabase
+            .connection(PlaylistDatabase.TABLE_PLAYLISTS)
+            .delete()
+            .where({ id: idToDelete })
+    }
     
 }

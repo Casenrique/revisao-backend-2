@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { PlaylistBusiness } from "../business/PlaylistBusiness"
-import { GetPlaylistsInputDTO, CreatePlaylistInputDTO, EditPlaylistInputDTO } from "../dtos/userDTO"
+import { GetPlaylistsInputDTO, CreatePlaylistInputDTO, EditPlaylistInputDTO, DeletePlaylistInputDTO } from "../dtos/userDTO"
 import { BaseError } from "../errors/BaseError"
 
 export class PlaylistController {
@@ -28,7 +28,7 @@ export class PlaylistController {
         }
     }
 
-    public createPlaylists = async (req: Request, res: Response) => {
+    public createPlaylist = async (req: Request, res: Response) => {
         try {
             const input: CreatePlaylistInputDTO = {
                 token: req.headers.authorization,
@@ -49,7 +49,7 @@ export class PlaylistController {
         }
     }
 
-    public editPlaylists = async (req: Request, res: Response) => {
+    public editPlaylist = async (req: Request, res: Response) => {
         try {
             const input: EditPlaylistInputDTO = {
                 idToEdit: req.params.id,
@@ -58,6 +58,27 @@ export class PlaylistController {
             }
 
             await this.playlistBusiness.editPlaylist(input)
+
+            res.status(200).end()
+            
+        } catch (error) {
+            console.log(error)
+            if(error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.status(500).send("Erro inesperado")
+            }
+        }
+    }
+
+    public deletePlaylist = async (req: Request, res: Response) => {
+        try {
+            const input: DeletePlaylistInputDTO = {
+                idToDelete: req.params.id,
+                token: req.headers.authorization,
+            }
+
+            await this.playlistBusiness.deletePlaylist(input)
 
             res.status(200).end()
             

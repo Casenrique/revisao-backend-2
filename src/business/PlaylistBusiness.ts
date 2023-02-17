@@ -1,10 +1,10 @@
 import { PlaylistDatabase } from "../database/PlaylistDatabase";
-import { CreatePlaylistInputDTO, EditPlaylistInputDTO, GetPlaylistsInputDTO, GetPlaylistsOutputDTO } from "../dtos/userDTO";
+import { CreatePlaylistInputDTO, DeletePlaylistInputDTO, EditPlaylistInputDTO, GetPlaylistsInputDTO, GetPlaylistsOutputDTO } from "../dtos/userDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { Playlist } from "../models/Playlist";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
-import { PlaylistDB, PlaylistWithCreatorDB } from "../types";
+import { PlaylistDB, PlaylistWithCreatorDB, USER_ROLES } from "../types";
 
 export class PlaylistBusiness {
     constructor(
@@ -113,7 +113,6 @@ export class PlaylistBusiness {
             throw new BadRequestError("'id' não encontrado")
         }
 
-        // const updatedAt = new Date().toISOString()
         const creatorId = payload.id
         const creatorName = payload.name
 
@@ -138,6 +137,37 @@ export class PlaylistBusiness {
         const updatedPlaylistDB = playlist.toDBModel()
 
         await this.playlistDatabase.update(idToEdit, updatedPlaylistDB)
+
+    }
+
+    public deletePlaylist = async (input: DeletePlaylistInputDTO): Promise<void> => {
+        const { idToDelete, token } = input
+
+        if(token === undefined) {
+            throw new BadRequestError("token ausente")
+        }
+
+        const payload = this.tokenManager.getPayload(token)
+
+        if(payload === null) {
+            throw new BadRequestError("token inválido")
+        }
+        
+        const playlistDB: PlaylistDB | undefined = await this.playlistDatabase.searchById(idToDelete)
+
+        if(!playlistDB) {
+            throw new BadRequestError("'id' não encontrado")
+        }
+
+        const creatorId = payload.id
+
+        if(payload.role !== USER_ROLES.ADMIN
+            && playlistDB.creator_id !== creatorId
+            ) {
+            throw new BadRequestError("Somente o criador da playlist ou administrador de sistema pode apagá-la")
+        }
+
+        await this.playlistDatabase.delete(idToDelete)
 
     }
 }
