@@ -27,5 +27,22 @@ export class PlaylistDatabase extends BaseDatabase {
             .connection(PlaylistDatabase.TABLE_PLAYLISTS)
             .insert(playlistDB)
     }
+
+    public searchById = async (idToEdit: string): Promise<PlaylistDB | undefined> => {
+        const result: PlaylistDB[] = await BaseDatabase
+            .connection(PlaylistDatabase.TABLE_PLAYLISTS)
+            .select()
+            .where({ id: idToEdit  })
+        
+            return result[0]        
+    }
+
+
+    public update = async (idToEdit: string, playlistDB: PlaylistDB): Promise<void> => {
+        await BaseDatabase
+            .connection(PlaylistDatabase.TABLE_PLAYLISTS)
+            .update(playlistDB)
+            .where({ id: idToEdit })
+    }
     
 }
